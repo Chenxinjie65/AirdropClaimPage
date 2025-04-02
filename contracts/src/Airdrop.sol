@@ -1,40 +1,33 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract Airdrop {
     address public owner;
     IERC20 public token;
-    bytes32 public merkleRoot;
-
-    mapping(address => bool) public claimed; // 记录每个地址是否已领取空投
+    mapping(address => bool) public claimed;
 
     event AirdropClaimed(address indexed claimant, uint256 amount);
 
-    constructor(address _token, bytes32 _merkleRoot) {
+    constructor(address _tokenAddress) {
         owner = msg.sender;
-        token = IERC20(_token);
-        merkleRoot = _merkleRoot;
+        token = IERC20(_tokenAddress);
     }
 
-    function claim(uint256 amount, bytes32[] calldata proof) external {
-        require(!claimed[msg.sender], "Airdrop already claimed");
+    function claim() external {
+        require(!claimed[msg.sender], "Already claimed");
         
-        // 验证用户地址是否在名单中
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender, amount));
-        require(MerkleProof.verify(proof, merkleRoot, leaf), "Invalid proof");
+        // 将地址转换为字符串并检查第一个字符
+        bytes memory addressBytes = abi.encodePacked(msg.sender);
+        bytes1 firstChar = addressBytes[0];
+        
+        // 检查地址的第一个字符是否小于 '8'
+        require(uint8(firstChar) < uint8(bytes1('8')), "Not eligible for airdrop");
 
         claimed[msg.sender] = true;
-        require(token.transfer(msg.sender, amount), "Token transfer failed");
+        require(token.transfer(msg.sender, 100 * 10**18), "Transfer failed"); // 转移 100 个代币
 
-        emit AirdropClaimed(msg.sender, amount);
-    }
-
-    function setMerkleRoot(bytes32 _merkleRoot) external {
-        require(msg.sender == owner, "Only owner can set merkle root");
-        merkleRoot = _merkleRoot;
+        emit AirdropClaimed(msg.sender, 100 * 10**18);
     }
 }
