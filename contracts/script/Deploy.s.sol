@@ -10,7 +10,7 @@ contract DeployScript is Script {
         
         vm.startBroadcast(deployerPrivateKey);
         
-        Airdrop airdrop = new Airdrop(0xFA820Fc53b7202fF77fD4eD73b117181c79C7ED0);
+        new Airdrop(0xFA820Fc53b7202fF77fD4eD73b117181c79C7ED0);
         
         vm.stopBroadcast();
     }

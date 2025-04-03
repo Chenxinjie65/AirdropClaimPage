@@ -15,18 +15,17 @@ contract Airdrop {
         token = IERC20(_tokenAddress);
     }
 
+    function isEligible(address user) public pure returns (bool) {
+        address mid = 0x8000000000000000000000000000000000000000; 
+        return user < mid;
+    }
+
     function claim() external {
         require(!claimed[msg.sender], "Already claimed");
-        
-        // 将地址转换为字符串并检查第一个字符
-        bytes memory addressBytes = abi.encodePacked(msg.sender);
-        bytes1 firstChar = addressBytes[0];
-        
-        // 检查地址的第一个字符是否小于 '8'
-        require(uint8(firstChar) < uint8(bytes1('8')), "Not eligible for airdrop");
+        require(isEligible(msg.sender), "Not eligible for airdrop");
 
         claimed[msg.sender] = true;
-        require(token.transfer(msg.sender, 100 * 10**18), "Transfer failed"); // 转移 100 个代币
+        require(token.transfer(msg.sender, 100 * 10**18), "Transfer failed");
 
         emit AirdropClaimed(msg.sender, 100 * 10**18);
     }
