@@ -8,8 +8,7 @@ contract MyTokenTest is Test {
     MyToken token;
 
     function setUp() public {
-        token = new MyToken(1000 * 10 ** 18); 
-    }
+        token = new MyToken(1000 * 10 ** 18);     }
 
     function testInitialSupply() public view{
         uint256 initialSupply = token.totalSupply();
